@@ -1,19 +1,302 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>驾校助手 - AI智能服务</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .agent-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        .agent-card h2 {
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .agent-card h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 80px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .agent-icon {
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
 <body>
-  <h1>Hello ECS + GitHub.io</h1>
-  <button onclick="fetchData()">请求ECS后端</button>
-  <p id="res"></p>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 驾校助手</h1>
+            <p>AI智能驾校服务平台</p>
+        </div>
+        
+        <div class="agent-card">
+            <h2><span class="agent-icon">🏢</span> 驾校选择</h2>
+            <div class="input-group">
+                <label for="math-input">输入你的需求：</label>
+                <textarea id="math-input" placeholder="例如：北京朝阳区口碑好的驾校推荐，价格在5000-6000元之间"></textarea>
+            </div>
+            <button class="btn" onclick="runMath()">
+                <span class="btn-text">查询</span>
+                <span class="loading" id="math-loading" style="display:none"></span>
+            </button>
+            <div class="result" id="math-result" style="display:none">
+                <h3>推荐结果：</h3>
+                <pre id="math-output"></pre>
+            </div>
+        </div>
+        
+        <div class="agent-card">
+            <h2><span class="agent-icon">👨‍🏫</span> 教练选择</h2>
+            <div class="input-group">
+                <label for="research-input">输入你的偏好：</label>
+                <textarea id="research-input" placeholder="例如：想要一位耐心细致的C1驾照教练，有多年教学经验"></textarea>
+            </div>
+            <button class="btn" onclick="runResearch()">
+                <span class="btn-text">匹配</span>
+                <span class="loading" id="research-loading" style="display:none"></span>
+            </button>
+            <div class="result" id="research-result" style="display:none">
+                <h3>匹配结果：</h3>
+                <pre id="research-output"></pre>
+            </div>
+        </div>
+        
+        <div class="agent-card">
+            <h2><span class="agent-icon">📝</span> 考试答疑</h2>
+            <div class="input-group">
+                <label for="code-input">输入你的问题：</label>
+                <textarea id="code-input" placeholder="例如：科目二倒车入库的技巧是什么？"></textarea>
+            </div>
+            <button class="btn" onclick="runCode()">
+                <span class="btn-text">解答</span>
+                <span class="loading" id="code-loading" style="display:none"></span>
+            </button>
+            <div class="result" id="code-result" style="display:none">
+                <h3>解答结果：</h3>
+                <pre id="code-output"></pre>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    // 这里填你的ECS公网IP和端口
-    const API = "https://8.209.232.25/hello";
+    <script>
+        // 配置你的服务器地址（ESC服务器IP地址或域名）
+const API_BASE_URL = 'https://8.209.232.25';
 
-    async function fetchData(){
-      const r = await fetch(API);
-      const data = await r.json();
-      document.getElementById("res").innerText = data.msg;
+async function runMath() {
+    const input = document.getElementById('math-input').value;
+    if (!input.trim()) return;
+    
+    document.getElementById('math-loading').style.display = 'inline-block';
+    document.querySelector('.btn-text').textContent = '';
+    document.getElementById('math-result').style.display = 'none';
+    
+    try {
+        const response = await fetch(API_BASE_URL + '/api/math', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: input })
+        });
+        const data = await response.json();
+        document.getElementById('math-output').textContent = data.result;
+        document.getElementById('math-result').style.display = 'block';
+    } catch (error) {
+        document.getElementById('math-output').textContent = 'Error: ' + error.message;
+        document.getElementById('math-result').style.display = 'block';
+    } finally {
+        document.getElementById('math-loading').style.display = 'none';
+        document.querySelector('.btn-text').textContent = '查询';
     }
-  </script>
+}
+        
+        async function runResearch() {
+            const input = document.getElementById('research-input').value;
+            if (!input.trim()) return;
+            
+            document.getElementById('research-loading').style.display = 'inline-block';
+            document.getElementById('research-result').style.display = 'none';
+            
+            try {
+                console.log('Calling research API with:', input);
+                const response = await fetch(API_BASE_URL + '/api/research', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: input })
+                });
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+                const data = await response.json();
+                console.log('Response data:', data);
+                document.getElementById('research-output').textContent = data.result;
+                document.getElementById('research-result').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('research-output').textContent = 'Error: ' + error.message;
+                document.getElementById('research-result').style.display = 'block';
+            } finally {
+                document.getElementById('research-loading').style.display = 'none';
+            }
+        }
+        
+        async function runCode() {
+            const input = document.getElementById('code-input').value;
+            if (!input.trim()) return;
+            
+            document.getElementById('code-loading').style.display = 'inline-block';
+            document.getElementById('code-result').style.display = 'none';
+            
+            try {
+                const response = await fetch(API_BASE_URL + '/api/code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: input })
+                });
+                const data = await response.json();
+                document.getElementById('code-output').textContent = data.result;
+                document.getElementById('code-result').style.display = 'block';
+            } catch (error) {
+                document.getElementById('code-output').textContent = 'Error: ' + error.message;
+                document.getElementById('code-result').style.display = 'block';
+            } finally {
+                document.getElementById('code-loading').style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

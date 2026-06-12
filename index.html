@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>Hello, my first github.io site!</h1>
-<p>这是我的免费个人主页。</p>
+  <h1>Hello ECS + GitHub.io</h1>
+  <button onclick="fetchData()">请求ECS后端</button>
+  <p id="res"></p>
+
+  <script>
+    // 这里填你的ECS公网IP和端口
+    const API = "http://123.45.67.89:3000/hello";
+
+    async function fetchData(){
+      const r = await fetch(API);
+      const data = await r.json();
+      document.getElementById("res").innerText = data.msg;
+    }
+  </script>
 </body>
 </html>

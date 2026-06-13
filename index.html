@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>驾校助手 - AI智能服务</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小侯驾校助手 - AI智能服务</title>
     <style>
         * {
             margin: 0;
@@ -11,78 +11,154 @@
             box-sizing: border-box;
         }
         
-        body {
+        html, body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
-            padding: 20px;
+            height: 100%;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         
         .header {
-            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            margin-bottom: 30px;
+            padding: 16px 20px;
+            text-align: center;
+            flex-shrink: 0;
         }
         
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 1.25rem;
+            font-weight: 600;
         }
         
         .header p {
-            font-size: 1.1rem;
+            font-size: 0.8rem;
             opacity: 0.9;
+            margin-top: 4px;
         }
         
-        .agent-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        }
-        
-        .agent-card h2 {
-            color: #333;
-            margin-bottom: 16px;
+        /* Tab栏 */
+        .tabs {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #fafafa;
+            flex-shrink: 0;
         }
         
-        .agent-card h2::before {
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .tab.active::after {
             content: '';
-            width: 4px;
-            height: 24px;
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
+            border-radius: 1px;
+        }
+        
+        /* 聊天消息区域 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 消息气泡 */
+        .message {
+            max-width: 80%;
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        /* AI消息 - 左边 */
+        .message.ai {
+            align-self: flex-start;
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+        
+        /* 用户消息 - 右边 */
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* 消息头部 */
+        .message-header {
+            font-size: 12px;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+        
+        .message.ai .message-header {
+            color: #666;
+        }
+        
+        .message.user .message-header {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* 输入区域 */
+        .input-area {
+            padding: 12px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+            flex-shrink: 0;
         }
         
         .input-group {
-            margin-bottom: 16px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
         }
         
         .input-group textarea {
-            width: 100%;
-            padding: 12px;
+            flex: 1;
+            padding: 12px 16px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            resize: vertical;
-            min-height: 80px;
+            border-radius: 24px;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
             font-size: 14px;
+            font-family: inherit;
             transition: border-color 0.3s;
         }
         
@@ -95,17 +171,21 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
         .btn:disabled {
@@ -114,35 +194,13 @@
             transform: none;
         }
         
-        .result {
-            margin-top: 16px;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .result h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        .result pre {
-            white-space: pre-wrap;
-            word-break: break-all;
-            color: #555;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        
+        /* 加载状态 */
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -152,151 +210,202 @@
             100% { transform: rotate(360deg); }
         }
         
-        .agent-icon {
-            font-size: 1.5rem;
+        /* 移动端适配 */
+        @media (max-width: 480px) {
+            .container {
+                height: 100vh;
+                max-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .tab {
+                font-size: 11px;
+                padding: 10px 4px;
+            }
+            
+            .message {
+                max-width: 85%;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .input-group textarea {
+                padding: 10px 14px;
+                font-size: 15px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚗 驾校助手</h1>
+            <h1>🚗 小侯驾校助手</h1>
             <p>AI智能驾校服务平台</p>
         </div>
         
-        <div class="agent-card">
-            <h2><span class="agent-icon">🏢</span> 驾校选择</h2>
-            <div class="input-group">
-                <label for="math-input">输入你的需求：</label>
-                <textarea id="math-input" placeholder="例如：北京朝阳区口碑好的驾校推荐，价格在5000-6000元之间"></textarea>
-            </div>
-            <button class="btn" onclick="runMath()">
-                <span class="btn-text">查询</span>
-                <span class="loading" id="math-loading" style="display:none"></span>
-            </button>
-            <div class="result" id="math-result" style="display:none">
-                <h3>推荐结果：</h3>
-                <pre id="math-output"></pre>
+        <!-- Tab栏 -->
+        <div class="tabs">
+            <div class="tab active" id="tab-math" onclick="switchTab('math')">🏢 驾校选择</div>
+            <div class="tab" id="tab-research" onclick="switchTab('research')">👨‍🏫 教练选择</div>
+            <div class="tab" id="tab-code" onclick="switchTab('code')">📝 考试答疑</div>
+        </div>
+        
+        <div class="chat-area" id="chat-area">
+            <!-- 初始消息 -->
+            <div class="message ai">
+                <div class="message-header">AI助手</div>
+                <div>您好！我是小侯驾校助手，您可以先输入您的城市（+地区）开始我们的帮助。</div>
             </div>
         </div>
         
-        <div class="agent-card">
-            <h2><span class="agent-icon">👨‍🏫</span> 教练选择</h2>
+        <div class="input-area">
             <div class="input-group">
-                <label for="research-input">输入你的偏好：</label>
-                <textarea id="research-input" placeholder="例如：想要一位耐心细致的C1驾照教练，有多年教学经验"></textarea>
-            </div>
-            <button class="btn" onclick="runResearch()">
-                <span class="btn-text">匹配</span>
-                <span class="loading" id="research-loading" style="display:none"></span>
-            </button>
-            <div class="result" id="research-result" style="display:none">
-                <h3>匹配结果：</h3>
-                <pre id="research-output"></pre>
-            </div>
-        </div>
-        
-        <div class="agent-card">
-            <h2><span class="agent-icon">📝</span> 考试答疑</h2>
-            <div class="input-group">
-                <label for="code-input">输入你的问题：</label>
-                <textarea id="code-input" placeholder="例如：科目二倒车入库的技巧是什么？"></textarea>
-            </div>
-            <button class="btn" onclick="runCode()">
-                <span class="btn-text">解答</span>
-                <span class="loading" id="code-loading" style="display:none"></span>
-            </button>
-            <div class="result" id="code-result" style="display:none">
-                <h3>解答结果：</h3>
-                <pre id="code-output"></pre>
+                <textarea id="user-input" placeholder="输入您的问题，例如：北京口碑好的驾校推荐"></textarea>
+                <button class="btn" onclick="sendMessage()">
+                    <span id="btn-text">发送</span>
+                    <span class="loading" id="loading" style="display:none"></span>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 配置你的服务器地址（ESC服务器IP地址或域名）
-const API_BASE_URL = 'https://8.209.232.25';
+        // ========== API配置 ==========
+        // 设置为 'local' 使用本地服务器，设置为 'remote' 使用远程服务器
+        const API_MODE = 'remote';
+        
+        // 远程服务器地址
+        const REMOTE_API_URL = 'https://8.209.232.25';
+        // 本地服务器地址
+        const LOCAL_API_URL = 'http://localhost:3000';
+        
+        // 根据配置选择API地址
+        const API_BASE_URL = API_MODE === 'remote' ? REMOTE_API_URL : LOCAL_API_URL;
+        // ========== 配置结束 ==========
+        
+        let currentTab = 'math'; // 当前选中的tab
+        let conversationHistory = {}; // 保存每个tab的对话历史
+        
+        const tabNames = {
+            math: '驾校选择',
+            research: '教练选择',
+            code: '考试答疑'
+        };
 
-async function runMath() {
-    const input = document.getElementById('math-input').value;
-    if (!input.trim()) return;
-    
-    document.getElementById('math-loading').style.display = 'inline-block';
-    document.querySelector('.btn-text').textContent = '';
-    document.getElementById('math-result').style.display = 'none';
-    
-    try {
-        const response = await fetch(API_BASE_URL + '/api/math', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: input })
+        // 初始化对话历史
+        Object.keys(tabNames).forEach(tab => {
+            conversationHistory[tab] = [];
         });
-        const data = await response.json();
-        document.getElementById('math-output').textContent = data.result;
-        document.getElementById('math-result').style.display = 'block';
-    } catch (error) {
-        document.getElementById('math-output').textContent = 'Error: ' + error.message;
-        document.getElementById('math-result').style.display = 'block';
-    } finally {
-        document.getElementById('math-loading').style.display = 'none';
-        document.querySelector('.btn-text').textContent = '查询';
-    }
-}
-        
-        async function runResearch() {
-            const input = document.getElementById('research-input').value;
-            if (!input.trim()) return;
+
+        // 切换tab
+        function switchTab(tabName) {
+            currentTab = tabName;
             
-            document.getElementById('research-loading').style.display = 'inline-block';
-            document.getElementById('research-result').style.display = 'none';
+            // 更新tab样式
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // 清空聊天区域，显示新的欢迎消息
+            const chatArea = document.getElementById('chat-area');
+            chatArea.innerHTML = `
+                <div class="message ai">
+                    <div class="message-header">AI助手</div>
+                    <div>您好！我是${tabNames[tabName]}助手，您可以先输入您的城市（+地区）开始我们的帮助。</div>
+                </div>
+            `;
+            
+            // 清空当前tab的对话历史
+            conversationHistory[tabName] = [];
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(text, isUser) {
+            const chatArea = document.getElementById('chat-area');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user' : 'message ai';
+            
+            const header = document.createElement('div');
+            header.className = 'message-header';
+            header.textContent = isUser ? '我' : 'AI助手';
+            
+            const content = document.createElement('div');
+            content.textContent = text;
+            
+            messageDiv.appendChild(header);
+            messageDiv.appendChild(content);
+            chatArea.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            // 保存到对话历史
+            conversationHistory[currentTab].push({
+                role: isUser ? 'user' : 'assistant',
+                content: text
+            });
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            // 显示用户消息
+            addMessage(text, true);
+            input.value = '';
+            
+            // 显示加载状态
+            const btnText = document.getElementById('btn-text');
+            const loading = document.getElementById('loading');
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
             
             try {
-                console.log('Calling research API with:', input);
-                const response = await fetch(API_BASE_URL + '/api/research', {
+                // 构建完整的对话历史
+                const history = conversationHistory[currentTab]
+                    .filter(msg => msg.role === 'user')  // 只取用户消息
+                    .map(msg => msg.content)
+                    .join('\n');
+                
+                // 根据当前tab调用不同的API接口，发送完整对话历史
+                const response = await fetch(API_BASE_URL + '/api/' + currentTab, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: input })
+                    body: JSON.stringify({ 
+                        query: text,
+                        history: history  // 发送之前的对话历史
+                    })
                 });
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    throw new Error('HTTP error ' + response.status);
-                }
+                
                 const data = await response.json();
-                console.log('Response data:', data);
-                document.getElementById('research-output').textContent = data.result;
-                document.getElementById('research-result').style.display = 'block';
+                addMessage(data.result, false);
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('research-output').textContent = 'Error: ' + error.message;
-                document.getElementById('research-result').style.display = 'block';
+                addMessage('抱歉，当前服务暂时不可用，请稍后重试。', false);
             } finally {
-                document.getElementById('research-loading').style.display = 'none';
+                // 隐藏加载状态
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
             }
         }
-        
-        async function runCode() {
-            const input = document.getElementById('code-input').value;
-            if (!input.trim()) return;
-            
-            document.getElementById('code-loading').style.display = 'inline-block';
-            document.getElementById('code-result').style.display = 'none';
-            
-            try {
-                const response = await fetch(API_BASE_URL + '/api/code', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: input })
-                });
-                const data = await response.json();
-                document.getElementById('code-output').textContent = data.result;
-                document.getElementById('code-result').style.display = 'block';
-            } catch (error) {
-                document.getElementById('code-output').textContent = 'Error: ' + error.message;
-                document.getElementById('code-result').style.display = 'block';
-            } finally {
-                document.getElementById('code-loading').style.display = 'none';
+
+        // 回车键发送
+        document.getElementById('user-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
             }
-        }
+        });
     </script>
 </body>
 </html>
